@@ -1,0 +1,35 @@
+A emacs package for find replace, written in pure emacs lisp. Purpose similar to unix grep/sed.
+
+[[http://melpa.org/#/xah-find][file:http://melpa.org/packages/xah-find-badge.svg]]
+
+This package provides the follow functions:
+
+- xah-find-text
+- xah-find-text-regex
+- xah-find-count
+- xah-find-replace-text
+- xah-find-replace-text-regex
+
+Features:
+
+• Pure emacs lisp. No dependencies on unix/linux grep/sed/find. Especially useful on Windows.
+
+• Output is highlighted and clickable for jumping to occurence.
+
+• Using emacs regex, not bash/perl etc regex.
+
+• Reliably Find/Replace string that's multiple lines.
+
+• Reliably Find/Replace string that contains lots Unicode characters. See [[http://xahlee.info/comp/unix_uniq_unicode_bug.html][unix uniq unicode bug]] and [[http://ergoemacs.org/emacs/emacs_grep_problem.html][emacs calling unix grep problem]]
+
+• Reliably Find/Replace string that contains lots escape slashes or backslashes. For example, Find/Replace string that's regex in source code.
+
+Home page: http://ergoemacs.org/emacs/elisp-xah-find-text.html
+
+Put in 5 bucks in my patreon.
+https://www.patreon.com/xahlee
+
+or https://paypal.com
+pay to xah@xahlee.org
+
+Thanks.
