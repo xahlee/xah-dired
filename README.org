@@ -1,30 +1,24 @@
-A emacs package for find replace, written in pure emacs lisp. Purpose similar to unix grep/sed.
+xah-dired.el is a emacs lisp package that contain many emacs commands to process image or other convenient command utilities.
 
-[[http://melpa.org/#/xah-find][file:http://melpa.org/packages/xah-find-badge.svg]]
+as of 2021-01-14, it contains the following commands:
 
-This package provides the follow functions:
+xah-process-image
+xah-dired-scale-image
+xah-dired-image-autocrop
+xah-dired-image-remove-transparency
+xah-dired-2jpg
+xah-dired-2png
+xah-dired-optimize-png
+xah-dired-2drawing
+xah-dired-show-metadata
+xah-dired-remove-all-metadata
+xah-dired-sort
+xah-dired-open-marked
+xah-dired-to-zip
+xah-open-in-gimp
+xah-dired-open-in-textedit
 
-- xah-find-text
-- xah-find-text-regex
-- xah-find-count
-- xah-find-replace-text
-- xah-find-replace-text-regex
-
-Features:
-
-• Pure emacs lisp. No dependencies on unix/linux grep/sed/find. Especially useful on Windows.
-
-• Output is highlighted and clickable for jumping to occurence.
-
-• Using emacs regex, not bash/perl etc regex.
-
-• Reliably Find/Replace string that's multiple lines.
-
-• Reliably Find/Replace string that contains lots Unicode characters. See [[http://xahlee.info/comp/unix_uniq_unicode_bug.html][unix uniq unicode bug]] and [[http://ergoemacs.org/emacs/emacs_grep_problem.html][emacs calling unix grep problem]]
-
-• Reliably Find/Replace string that contains lots escape slashes or backslashes. For example, Find/Replace string that's regex in source code.
-
-Home page: http://ergoemacs.org/emacs/elisp-xah-find-text.html
+Home page: http://ergoemacs.org/emacs/emacs_dired_convert_images.html
 
 Put in 5 bucks in my patreon.
 https://www.patreon.com/xahlee
