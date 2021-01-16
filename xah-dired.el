@@ -1,9 +1,9 @@
-;;; xah-dired.el --- extension to dired, to process images, open in OS, zip dir, etc. -*- coding: utf-8; lexical-binding: t; -*-
+;;; xah-dired.el --- utility to process images, open in OS, zip dir, etc in dired. -*- coding: utf-8; lexical-binding: t; -*-
 
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.0.20210114151311
+;; Version: 0.1.20210115231758
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -164,29 +164,28 @@ Version 2016-07-19"
 (defun xah-dired-optimize-png (@fileList)
   "optimize the png file of current file or current/marked files in `dired'.
 Require shell command optipng.
-Version 2021-01-14"
+Version 2021-01-14 2021-01-15"
   (interactive
    (list
     (cond
      ((string-equal major-mode "dired-mode") (dired-get-marked-files))
      ((string-equal major-mode "image-mode") (list (buffer-file-name)))
      (t (list (read-from-minibuffer "file name:"))))))
-  (let ( ($outputBuf (get-buffer-create "*xah output*")))
-    (switch-to-buffer $outputBuf)
-    (erase-buffer)
-    (mapc (lambda (f)
-            (call-process
-             "optipng"
-             nil $outputBuf nil
-             (file-relative-name f))
-            (insert "\nhh========================================\n"))
-          @fileList)))
+  (let ( (outputBuf (get-buffer-create "*xah optipng output*")))
+    (with-current-buffer outputBuf
+      (erase-buffer)
+      (mapc (lambda (f)
+              (call-process
+               "optipng"
+               nil outputBuf nil
+               (file-relative-name f))
+              (insert "\nhh========================================\n"))
+            @fileList))))
 
 (defun xah-dired-2drawing (@fileList @grayscale-p @max-colors-count)
   "Create a png version of (drawing type) images of marked files in `dired'.
 Basically, make it grayscale, and reduce colors to any of {2, 4, 16, 256}.
 Require shell command ImageMagick.
-
 Version 2017-02-02"
   (interactive
    (let (
@@ -217,26 +216,24 @@ Version 2017-02-02"
  (typically image files)
 URL `http://xahlee.info/img/metadata_in_image_files.html'
 Require shell command exiftool.
-
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2019-12-04 2021-01-14"
+Version 2019-12-04 2021-01-15"
   (interactive
    (list
     (cond
      ((string-equal major-mode "dired-mode") (dired-get-marked-files))
      ((string-equal major-mode "image-mode") (list (buffer-file-name)))
      (t (list (read-from-minibuffer "file name:"))))))
-  (let ( ($outputBuf (get-buffer-create "*xah metadata output*")))
-    (switch-to-buffer $outputBuf)
+  (let ( (outputBuf (get-buffer-create "*xah metadata output*")))
+    (switch-to-buffer outputBuf )
     (erase-buffer)
     (mapc (lambda (f)
             (call-process
              "exiftool"
-             nil $outputBuf nil
+             nil outputBuf nil
              (file-relative-name f))
             (insert "\nhh========================================\n"))
-          @fileList)
-    (goto-char (point-min))))
+          @fileList)))
 
 (defun xah-dired-remove-all-metadata (@fileList)
   "Remove all metatata of buffer image file or marked files in `dired'.
@@ -245,26 +242,25 @@ URL `http://xahlee.info/img/metadata_in_image_files.html'
 Require exiftool shell command.
 
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2016-07-19 2021-01-14"
+Version 2016-07-19 2021-01-15"
   (interactive
    (list
     (cond
      ((string-equal major-mode "dired-mode") (dired-get-marked-files))
      ((string-equal major-mode "image-mode") (list (buffer-file-name)))
      (t (list (read-from-minibuffer "file name:"))))))
-  (let ( ($outputBuf (get-buffer-create "*xah metadata output*")))
-    (switch-to-buffer $outputBuf)
-    (erase-buffer)
-    (mapc (lambda (f)
-            (call-process
-             "exiftool"
-             nil $outputBuf nil
-             "-all="
-             "-overwrite_original"
-             (file-relative-name f))
-            (insert "\nhh========================================\n"))
-          @fileList)
-    (goto-char (point-min))))
+  (let ( (outputBuf (get-buffer-create "*xah metadata output*")))
+    (with-current-buffer outputBuf
+      (erase-buffer)
+      (mapc (lambda (f)
+              (call-process
+               "exiftool"
+               nil outputBuf nil
+               "-all="
+               "-overwrite_original"
+               (file-relative-name f))
+              (insert "\nhh========================================\n"))
+            @fileList))))
 
 (defun xah-dired-sort ()
   "Sort dired dir listing in different ways.
