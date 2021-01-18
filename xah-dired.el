@@ -131,7 +131,7 @@ If `universal-argument' is called first, ask for jpeg quality. (default is 90)
 
 Require shell command ImageMagick.
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2018-11-28"
+Version 2018-11-28 2021-01-18"
   (interactive
    (let (
          ($fileList
@@ -144,13 +144,14 @@ Version 2018-11-28"
          (if current-prefix-arg
              (progn (string-to-number (read-string "quality:" "85")))
            (progn 90))))
-    (xah-process-image @fileList (format "-quality %s%%" quality ) "-2" ".jpg" )))
+    (xah-process-image @fileList (format "-quality %s%%" quality ) "-2" ".jpg" )
+    (revert-buffer)))
 
 (defun xah-dired-2png (@fileList)
   "Create a png version of images of marked files in `dired'.
 Require shell command ImageMagick.
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2016-07-19"
+Version 2016-07-19 2021-01-18"
   (interactive
    (let (
          ($fileList
@@ -159,7 +160,8 @@ Version 2016-07-19"
            ((string-equal major-mode "image-mode") (list (buffer-file-name)))
            (t (list (read-from-minibuffer "file name:"))))))
      (list $fileList)))
-  (xah-process-image @fileList "" "-2" ".png" ))
+  (xah-process-image @fileList "" "-2" ".png" )
+  (revert-buffer))
 
 (defun xah-dired-optimize-png (@fileList)
   "optimize the png file of current file or current/marked files in `dired'.
