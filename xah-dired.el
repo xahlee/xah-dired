@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.1.20210115231758
+;; Version: 0.2.20210120082313
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -62,19 +62,19 @@ Version 2021-01-14"
 
 (defun xah-dired-scale-image (@fileList @scalePercent @quality @sharpen-p)
   "Create a scaled version of marked image files in `dired'.
-New file names have “-s” appended before the file name extension.
+New file names have “-s‹n›” appended before the file name extension, where ‹n› is the scaling factor in percent, such as 60.
 
 If `universal-argument' is ask for png/jpg and sharpen options.
 
 When called in lisp code,
  @fileList is a file fullpath list.
  @scalePercent is a integer.
- @quality is a integer, from 1 to 100.
+ @quality is a integer, from 1 to 100. bigger is higher quality.
  @sharpen-p is true or false.
 
 Require shell command ImageMagick.
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2019-12-30"
+Version 2019-12-30 2021-01-20"
   (interactive
    (list (cond
           ((string-equal major-mode "dired-mode") (dired-get-marked-files))
@@ -85,10 +85,19 @@ Version 2019-12-30"
          (if current-prefix-arg (y-or-n-p "Sharpen") t)))
   (let ( ($nameExt
           (if current-prefix-arg (if (y-or-n-p "to png?") ".png" ".jpg" ) ".jpg" )))
-    (xah-process-image
-     @fileList
-     (format "-scale %s%% -quality %s%% %s " @scalePercent @quality (if @sharpen-p "-sharpen 1" "" ))
-     "-s" $nameExt )))
+    (mapc
+     (lambda (x)
+       (let* (($ext (file-name-extension x))
+              ($argStr (if (string-equal $ext "png")
+                           (format "-scale %s%% " @scalePercent )
+                         (format "-scale %s%% -quality %s%% %s " @scalePercent @quality (if @sharpen-p "-sharpen 1" "" )))))
+         (xah-process-image
+          (list x) $argStr
+          (format "-s%s" @scalePercent)
+          (concat "." $ext ))))
+     @fileList)
+    ;;
+    ))
 
 (defun xah-dired-image-autocrop ()
   "Create auto-cropped version of image in `dired', current or marked files
@@ -166,7 +175,7 @@ Version 2016-07-19 2021-01-18"
 (defun xah-dired-optimize-png (@fileList)
   "optimize the png file of current file or current/marked files in `dired'.
 Require shell command optipng.
-Version 2021-01-14 2021-01-15"
+Version 2021-01-14 2021-01-18"
   (interactive
    (list
     (cond
@@ -182,7 +191,8 @@ Version 2021-01-14 2021-01-15"
                nil outputBuf nil
                (file-relative-name f))
               (insert "\nhh========================================\n"))
-            @fileList))))
+            @fileList))
+    (switch-to-buffer-other-window outputBuf)))
 
 (defun xah-dired-2drawing (@fileList @grayscale-p @max-colors-count)
   "Create a png version of (drawing type) images of marked files in `dired'.
@@ -219,7 +229,7 @@ Version 2017-02-02"
 URL `http://xahlee.info/img/metadata_in_image_files.html'
 Require shell command exiftool.
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2019-12-04 2021-01-15"
+Version 2019-12-04 2021-01-18"
   (interactive
    (list
     (cond
@@ -244,7 +254,7 @@ URL `http://xahlee.info/img/metadata_in_image_files.html'
 Require exiftool shell command.
 
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2016-07-19 2021-01-15"
+Version 2016-07-19 2021-01-18"
   (interactive
    (list
     (cond
@@ -262,7 +272,8 @@ Version 2016-07-19 2021-01-15"
                "-overwrite_original"
                (file-relative-name f))
               (insert "\nhh========================================\n"))
-            @fileList))))
+            @fileList))
+    (switch-to-buffer-other-window outputBuf)))
 
 (defun xah-dired-sort ()
   "Sort dired dir listing in different ways.
