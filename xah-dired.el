@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.2.20210120082313
+;; Version: 0.3.20210124092753
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -175,6 +175,7 @@ Version 2016-07-19 2021-01-18"
 (defun xah-dired-optimize-png (@fileList)
   "optimize the png file of current file or current/marked files in `dired'.
 Require shell command optipng.
+Output is in buffer *xah optimize png output*
 Version 2021-01-14 2021-01-18"
   (interactive
    (list
@@ -182,7 +183,7 @@ Version 2021-01-14 2021-01-18"
      ((string-equal major-mode "dired-mode") (dired-get-marked-files))
      ((string-equal major-mode "image-mode") (list (buffer-file-name)))
      (t (list (read-from-minibuffer "file name:"))))))
-  (let ( (outputBuf (get-buffer-create "*xah optipng output*")))
+  (let ( (outputBuf (get-buffer-create "*xah optimize png output*")))
     (with-current-buffer outputBuf
       (erase-buffer)
       (mapc (lambda (f)
@@ -192,7 +193,8 @@ Version 2021-01-14 2021-01-18"
                (file-relative-name f))
               (insert "\nhh========================================\n"))
             @fileList))
-    (switch-to-buffer-other-window outputBuf)))
+    ;; (switch-to-buffer-other-window outputBuf)
+    ))
 
 (defun xah-dired-2drawing (@fileList @grayscale-p @max-colors-count)
   "Create a png version of (drawing type) images of marked files in `dired'.
@@ -226,10 +228,13 @@ Version 2017-02-02"
 (defun xah-dired-show-metadata (@fileList)
   "Display metatata of buffer image file or current/marked files in `dired'.
  (typically image files)
+Output in buffer *xah metadata output*
+
+This command require the shell command exiftool.
 URL `http://xahlee.info/img/metadata_in_image_files.html'
-Require shell command exiftool.
+
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2019-12-04 2021-01-18"
+Version 2019-12-04 2021-01-24"
   (interactive
    (list
     (cond
@@ -250,11 +255,13 @@ Version 2019-12-04 2021-01-18"
 (defun xah-dired-remove-all-metadata (@fileList)
   "Remove all metatata of buffer image file or marked files in `dired'.
  (typically image files)
+Output in buffer *xah metadata output*
+
+This command require the shell command exiftool.
 URL `http://xahlee.info/img/metadata_in_image_files.html'
-Require exiftool shell command.
 
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2016-07-19 2021-01-18"
+Version 2016-07-19 2021-01-24"
   (interactive
    (list
     (cond
