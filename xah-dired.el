@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.3.20210124092753
+;; Version: 0.4.20210128211836
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -176,7 +176,7 @@ Version 2016-07-19 2021-01-18"
   "optimize the png file of current file or current/marked files in `dired'.
 Require shell command optipng.
 Output is in buffer *xah optimize png output*
-Version 2021-01-14 2021-01-18"
+Version 2021-01-14 2021-01-28"
   (interactive
    (list
     (cond
@@ -194,7 +194,7 @@ Version 2021-01-14 2021-01-18"
               (insert "\nhh========================================\n"))
             @fileList))
     ;; (switch-to-buffer-other-window outputBuf)
-    ))
+    (message "Done optimize png. Output at buffer %s" outputBuf)))
 
 (defun xah-dired-2drawing (@fileList @grayscale-p @max-colors-count)
   "Create a png version of (drawing type) images of marked files in `dired'.
@@ -261,7 +261,7 @@ This command require the shell command exiftool.
 URL `http://xahlee.info/img/metadata_in_image_files.html'
 
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2016-07-19 2021-01-24"
+Version 2016-07-19 2021-01-28"
   (interactive
    (list
     (cond
@@ -270,7 +270,6 @@ Version 2016-07-19 2021-01-24"
      (t (list (read-from-minibuffer "file name:"))))))
   (let ( (outputBuf (get-buffer-create "*xah metadata output*")))
     (with-current-buffer outputBuf
-      (erase-buffer)
       (mapc (lambda (f)
               (call-process
                "exiftool"
@@ -280,7 +279,7 @@ Version 2016-07-19 2021-01-24"
                (file-relative-name f))
               (insert "\nhh========================================\n"))
             @fileList))
-    (switch-to-buffer-other-window outputBuf)))
+    (message "Done remove metadata. Output at buffer %s" outputBuf)))
 
 (defun xah-dired-sort ()
   "Sort dired dir listing in different ways.
