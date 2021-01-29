@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.4.20210128211836
+;; Version: 0.4.20210129135733
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -176,7 +176,7 @@ Version 2016-07-19 2021-01-18"
   "optimize the png file of current file or current/marked files in `dired'.
 Require shell command optipng.
 Output is in buffer *xah optimize png output*
-Version 2021-01-14 2021-01-28"
+Version 2021-01-14 2021-01-29"
   (interactive
    (list
     (cond
@@ -185,12 +185,10 @@ Version 2021-01-14 2021-01-28"
      (t (list (read-from-minibuffer "file name:"))))))
   (let ( (outputBuf (get-buffer-create "*xah optimize png output*")))
     (with-current-buffer outputBuf
-      (erase-buffer)
       (mapc (lambda (f)
-              (call-process
-               "optipng"
-               nil outputBuf nil
-               (file-relative-name f))
+              ;; (start-process "optipng" outputBuf "optipng" (file-relative-name f))
+              (message "wait for optimizing %s" (file-relative-name f))
+              (call-process "optipng" nil outputBuf nil (file-relative-name f))
               (insert "\nhh========================================\n"))
             @fileList))
     ;; (switch-to-buffer-other-window outputBuf)
