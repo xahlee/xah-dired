@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.4.20210129135733
+;; Version: 0.5.20210130232233
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -316,13 +316,19 @@ Version 2021-01-14"
       (shell-quote-argument (concat (file-relative-name fName) ".zip"))
       (shell-quote-argument (file-relative-name fName))))))
 
-;; rename was xah-open-in-gimp
+
+
+
+(defvar xah-open-in-gimp-path nil "Microsoft Windows Gimp executable path used by `xah-open-in-gimp'.")
+(setq xah-open-in-gimp-path "C:\\Program Files\\GIMP 2\\bin\\gimp-2.10.exe")
+
 (defun xah-open-in-gimp ()
   "Open the current file or `dired' marked files in image editor gimp.
-Works in linux and Mac. Not tested on Microsoft Windows.
+Works in linux and Mac.
+On Microsoft Windows, it uses `xah-open-in-gimp-path' to locate gimp program.
 
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2017-11-02"
+Version 2017-11-02 2021-01-30"
   (interactive)
   (let* (
          ($file-list
@@ -337,7 +343,11 @@ Version 2017-11-02"
        ((string-equal system-type "windows-nt")
         (mapc
          (lambda ($fpath)
-           (w32-shell-execute "gimp" (replace-regexp-in-string "/" "\\" $fpath t t))) $file-list))
+           (async-shell-command
+            (format "%s %s"
+                    (shell-quote-argument xah-open-in-gimp-path)
+                    (replace-regexp-in-string "/" "\\" $fpath t t))))
+         $file-list))
        ((string-equal system-type "darwin")
         (mapc
          (lambda ($fpath)
