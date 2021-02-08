@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.6.20210207184250
+;; Version: 1.0.20210208130340
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -86,13 +86,13 @@ Version 2019-12-30 2021-01-20"
   (let ( ($nameExt
           (if current-prefix-arg (if (y-or-n-p "to png?") ".png" ".jpg" ) ".jpg" )))
     (mapc
-     (lambda (x)
-       (let* (($ext (file-name-extension x))
+     (lambda ($f)
+       (let* (($ext (file-name-extension $f))
               ($argStr (if (string-equal $ext "png")
                            (format "-scale %s%% " @scalePercent )
                          (format "-scale %s%% -quality %s%% %s " @scalePercent @quality (if @sharpen-p "-sharpen 1" "" )))))
          (xah-process-image
-          (list x) $argStr
+          (list $f) $argStr
           (format "-s%s" @scalePercent)
           (concat "." $ext ))))
      @fileList)
@@ -176,23 +176,29 @@ Version 2016-07-19 2021-01-18"
   "optimize the png file of current file or current/marked files in `dired'.
 Require shell command optipng.
 Output is in buffer *xah optimize png output*
-Version 2021-01-14 2021-01-29"
+Version 2021-01-14 2021-02-08"
   (interactive
    (list
     (cond
      ((string-equal major-mode "dired-mode") (dired-get-marked-files))
      ((string-equal major-mode "image-mode") (list (buffer-file-name)))
      (t (list (read-from-minibuffer "file name:"))))))
-  (let ( (outputBuf (get-buffer-create "*xah optimize png output*")))
+  (let (
+        (outputBuf (get-buffer-create "*xah optimize png output*"))
+        (async-shell-command-buffer 'new-buffer))
     (with-current-buffer outputBuf
-      (mapc (lambda (f)
-              ;; (start-process "optipng" outputBuf "optipng" (file-relative-name f))
-              (message "wait for optimizing %s" (file-relative-name f))
-              (call-process "optipng" nil outputBuf nil (file-relative-name f))
+      (mapc (lambda ($f)
+              (async-shell-command
+               (format "optipng %s"
+                       (shell-quote-argument (file-relative-name $f))))
+              ;; (start-process "optipng" outputBuf "optipng" (file-relative-name $f))
+              ;; (message "wait for optimizing %s" (file-relative-name $f))
+              ;; (call-process "optipng" nil outputBuf nil (file-relative-name $f))
               (insert "\nhh========================================\n"))
             @fileList))
     ;; (switch-to-buffer-other-window outputBuf)
-    (message "Done optimize png. Output at buffer %s" outputBuf)))
+    ;; (message "Async optimizing png. Output at buffer %s" outputBuf)
+    ))
 
 (defun xah-dired-2drawing (@fileList @grayscale-p @max-colors-count)
   "Create a png version of (drawing type) images of marked files in `dired'.
@@ -307,10 +313,10 @@ Version 2019-10-22"
 If multiple files are marked, only zip the first one.
 Require unix zip command line tool.
 URL `http://ergoemacs.org/emacs/emacs_dired_zip_dir.html'
-Version 2021-01-14"
+Version 2021-01-14 2021-02-08"
   (interactive)
   (let ( (fName (elt (dired-get-marked-files) 0)))
-    (shell-command
+    (async-shell-command
      (format
       "zip -r %s %s"
       (shell-quote-argument (concat (file-relative-name fName) ".zip"))
@@ -328,6 +334,7 @@ URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
 Version 2017-11-02 2021-01-30"
   (interactive)
   (let* (
+         (async-shell-command-buffer 'new-buffer)
          ($file-list
           (if (string-equal major-mode "dired-mode")
               (dired-get-marked-files)
@@ -343,12 +350,12 @@ Version 2017-11-02 2021-01-30"
            (async-shell-command
             (format "%s %s"
                     (shell-quote-argument xah-open-in-gimp-path)
-                    (replace-regexp-in-string "/" "\\" $fpath t t))))
+                    (shell-quote-argument (file-relative-name $fpath)))))
          $file-list))
        ((string-equal system-type "darwin")
         (mapc
          (lambda ($fpath)
-           (shell-command
+           (async-shell-command
             (format "open -a /Applications/GIMP.app \"%s\"" $fpath))) $file-list))
        ((string-equal system-type "gnu/linux")
         (mapc
@@ -360,7 +367,7 @@ Version 2017-11-02 2021-01-30"
 (defun xah-dired-open-in-irfanview ()
   "Open the current file or `dired' marked files in Windows's IrfanView.
 This uses `xah-dired-irfanview-path' to locate IrfanView program.
-Version 2021-02-07"
+Version 2021-02-07 2021-02-08"
   (interactive)
   (when (not (string-equal system-type "windows-nt"))
     (user-error "Error 84752: this command only runs in Windows"))
@@ -376,11 +383,11 @@ Version 2021-02-07"
                      (y-or-n-p "Open more than 5 files? "))))
     (when $do-it-p
       (mapc
-       (lambda (x)
+       (lambda ($f)
          (async-shell-command
           (format "%s %s"
                   (shell-quote-argument xah-dired-irfanview-path)
-                  (replace-regexp-in-string "/" "\\" x t t))
+                  (shell-quote-argument (file-relative-name $f)))
           "*xah open in irfanview output*"
           )) $file-list))))
 
