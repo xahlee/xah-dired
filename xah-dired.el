@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 0.5.20210130232233
+;; Version: 0.6.20210207184250
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -316,9 +316,6 @@ Version 2021-01-14"
       (shell-quote-argument (concat (file-relative-name fName) ".zip"))
       (shell-quote-argument (file-relative-name fName))))))
 
-
-
-
 (defvar xah-open-in-gimp-path nil "Microsoft Windows Gimp executable path used by `xah-open-in-gimp'.")
 (setq xah-open-in-gimp-path "C:\\Program Files\\GIMP 2\\bin\\gimp-2.10.exe")
 
@@ -357,14 +354,45 @@ Version 2017-11-02 2021-01-30"
         (mapc
          (lambda ($fpath) (let ((process-connection-type nil)) (start-process "" nil "gimp" $fpath))) $file-list))))))
 
-;; was xah-open-in-textedit
+(defvar xah-dired-irfanview-path nil "Microsoft Windows IrfanView executable path used by `xah-dired-open-in-irfanview'.")
+(setq xah-dired-irfanview-path "C:\\Program Files\\IrfanView\\i_view64.exe")
+
+(defun xah-dired-open-in-irfanview ()
+  "Open the current file or `dired' marked files in Windows's IrfanView.
+This uses `xah-dired-irfanview-path' to locate IrfanView program.
+Version 2021-02-07"
+  (interactive)
+  (when (not (string-equal system-type "windows-nt"))
+    (user-error "Error 84752: this command only runs in Windows"))
+  (let* (
+         (async-shell-command-buffer 'new-buffer)
+         (shell-command-dont-erase-buffer t)
+         ($file-list
+          (if (string-equal major-mode "dired-mode")
+              (dired-get-marked-files)
+            (list (buffer-file-name))))
+         ($do-it-p (if (<= (length $file-list) 5)
+                       t
+                     (y-or-n-p "Open more than 5 files? "))))
+    (when $do-it-p
+      (mapc
+       (lambda (x)
+         (async-shell-command
+          (format "%s %s"
+                  (shell-quote-argument xah-dired-irfanview-path)
+                  (replace-regexp-in-string "/" "\\" x t t))
+          "*xah open in irfanview output*"
+          )) $file-list))))
+
 (defun xah-dired-open-in-textedit ()
   "Open the current file or `dired' marked files in Mac's TextEdit.
 This command is for macOS only.
 
 URL `http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html'
-Version 2017-11-21"
+Version 2017-11-21 2021-02-07"
   (interactive)
+  (when (not (string-equal system-type "darwin"))
+    (user-error "Error 84752: this command only runs in Mac"))
   (let* (
          ($file-list
           (if (string-equal major-mode "dired-mode")
@@ -374,12 +402,10 @@ Version 2017-11-21"
                        t
                      (y-or-n-p "Open more than 5 files? "))))
     (when $do-it-p
-      (cond
-       ((string-equal system-type "darwin")
-        (mapc
-         (lambda ($fpath)
-           (shell-command
-            (format "open -a TextEdit.app \"%s\"" $fpath))) $file-list))))))
+      (mapc
+       (lambda ($fpath)
+         (shell-command
+          (format "open -a TextEdit.app \"%s\"" $fpath))) $file-list))))
 
 (provide 'xah-dired)
 
