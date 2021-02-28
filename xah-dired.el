@@ -106,13 +106,14 @@ Require shell command ImageMagick.
 Version 2021-01-14"
   (interactive)
   (if (string-equal major-mode "dired-mode")
-      (progn
-        (let (($flist (dired-get-marked-files)))
-          (mapc
-           (lambda ($f)
-             (xah-process-image (list $f) "-trim" "_crop" (file-name-extension $f t)))
-           $flist ))
-        (revert-buffer))))
+      (let (($flist (dired-get-marked-files)))
+        (mapc
+         (lambda ($f)
+           (xah-process-image (list $f) "-trim" "_crop" (file-name-extension $f t)))
+         $flist )
+        (revert-buffer))
+    nil
+    ))
 
 (defun xah-dired-image-remove-transparency ()
   "Create opaque version of image in `dired', current or marked files.
@@ -335,11 +336,11 @@ Version 2017-11-02 2021-01-30"
   (interactive)
   (let* (
          (async-shell-command-buffer 'new-buffer)
-         ($file-list
+         ($fileList
           (if (string-equal major-mode "dired-mode")
               (dired-get-marked-files)
             (list (buffer-file-name))))
-         ($do-it-p (if (<= (length $file-list) 20)
+         ($do-it-p (if (<= (length $fileList) 20)
                        t
                      (y-or-n-p "Open more than 20 files? "))))
     (when $do-it-p
@@ -347,19 +348,29 @@ Version 2017-11-02 2021-01-30"
        ((string-equal system-type "windows-nt")
         (mapc
          (lambda ($fpath)
-           (async-shell-command
-            (format "%s %s"
-                    (shell-quote-argument xah-open-in-gimp-path)
-                    (shell-quote-argument (file-relative-name $fpath)))))
-         $file-list))
+           (let (
+                 ;; ($cmdStr
+                 ;;  (format
+                 ;;   "PowerShell -Command Start-Process -FilePath %s -ArgumentList %s"
+                 ;;   (shell-quote-argument xah-open-in-gimp-path)
+                 ;;   (shell-quote-argument (expand-file-name $fpath ))))
+                 ($cmdStr
+                  (format "%s %s"
+                          (shell-quote-argument xah-open-in-gimp-path)
+                          (shell-quote-argument (file-relative-name $fpath))))
+                 ;;
+                 )
+             (message "%s" $cmdStr)
+             (async-shell-command $cmdStr )))
+         $fileList))
        ((string-equal system-type "darwin")
         (mapc
          (lambda ($fpath)
            (async-shell-command
-            (format "open -a /Applications/GIMP.app \"%s\"" $fpath))) $file-list))
+            (format "open -a /Applications/GIMP.app \"%s\"" $fpath))) $fileList))
        ((string-equal system-type "gnu/linux")
         (mapc
-         (lambda ($fpath) (let ((process-connection-type nil)) (start-process "" nil "gimp" $fpath))) $file-list))))))
+         (lambda ($fpath) (let ((process-connection-type nil)) (start-process "" nil "gimp" $fpath))) $fileList))))))
 
 (defvar xah-dired-irfanview-path nil "Microsoft Windows IrfanView executable path used by `xah-dired-open-in-irfanview'.")
 (setq xah-dired-irfanview-path "C:\\Program Files\\IrfanView\\i_view64.exe")
