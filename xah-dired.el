@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.0.20210208130340
+;; Version: 1.1.20210307123123
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -266,22 +266,21 @@ This command require the shell command exiftool.
 URL `http://xahlee.info/img/metadata_in_image_files.html'
 
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2016-07-19 2021-01-28"
+Version 2016-07-19 2021-03-07"
   (interactive
    (list
     (cond
      ((string-equal major-mode "dired-mode") (dired-get-marked-files))
      ((string-equal major-mode "image-mode") (list (buffer-file-name)))
      (t (list (read-from-minibuffer "file name:"))))))
-  (let ( (outputBuf (get-buffer-create "*xah metadata output*")))
+  (let ( (process-connection-type nil)
+         (outputBuf (get-buffer-create "*xah metadata output*")))
     (with-current-buffer outputBuf
-      (mapc (lambda (f)
-              (call-process
-               "exiftool"
-               nil outputBuf nil
-               "-all="
-               "-overwrite_original"
-               (file-relative-name f))
+      (mapc (lambda (x)
+              (start-process "" outputBuf "exiftool" "-all="
+                             "-overwrite_original"
+                             (file-relative-name x))
+              ;; (call-process "exiftool" nil outputBuf nil "-all=" "-overwrite_original" (file-relative-name f))
               (insert "\nhh========================================\n"))
             @fileList))
     (message "Done remove metadata. Output at buffer %s" outputBuf)))
