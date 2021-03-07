@@ -3,7 +3,7 @@
 ;; Copyright © 2021 by Xah Lee
 
 ;; Author: Xah Lee ( http://xahlee.info/ )
-;; Version: 1.1.20210307123123
+;; Version: 1.2.20210307125912
 ;; Created: 14 January 2021
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: convenience, extensions, files, tools, unix
@@ -239,7 +239,7 @@ This command require the shell command exiftool.
 URL `http://xahlee.info/img/metadata_in_image_files.html'
 
 URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
-Version 2019-12-04 2021-01-24"
+Version 2019-12-04 2021-03-07"
   (interactive
    (list
     (cond
@@ -248,7 +248,6 @@ Version 2019-12-04 2021-01-24"
      (t (list (read-from-minibuffer "file name:"))))))
   (let ( (outputBuf (get-buffer-create "*xah metadata output*")))
     (switch-to-buffer outputBuf )
-    (erase-buffer)
     (mapc (lambda (f)
             (call-process
              "exiftool"
