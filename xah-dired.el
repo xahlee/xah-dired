@@ -60,6 +60,27 @@ Version 2021-01-14"
          (message "Ran:「%s」" $cmdStr)))
      @fileList )))
 
+;; (defun xah-call-imagemagick-async (&rest @args )
+;;   "Wrapper to ImageMagick's “convert” shell command.
+;; @args is argument strings.
+;; URL `http://ergoemacs.org/emacs/emacs_dired_convert_images.html'
+;; Version 2021-03-08"
+;;   (let ((process-connection-type nil)
+;;         (outputBuf (get-buffer-create "*xah process img output*")))
+;;     ;; relative paths used to get around Windows/Cygwin path remapping problem
+;;     (with-current-buffer outputBuf
+;;       (start-process
+;;        "" outputBuf
+;;        (if (string-equal system-type "windows-nt") "magick.exe" "convert" )
+;;        (when (string-equal system-type "windows-nt") "convert")
+;;        (apply 'identity @args)))
+;;     (message "Start xah-process-image-async. Output at buffer %s" outputBuf)))
+
+;; (xah-call-imagemagick-async
+;;  "c:/Users/xah/web/xahlee_info/kbd/i2/havit_keyboard_20210307_311-s1000.jpg"
+;;  "c:/Users/xah/web/xahlee_info/kbd/i2/havit_keyboard_20210307_311-s1000.png"
+;;  )
+
 (defun xah-dired-scale-image (@fileList @scalePercent @quality @sharpen-p)
   "Create a scaled version of marked image files in `dired'.
 New file names have “-s‹n›” appended before the file name extension, where ‹n› is the scaling factor in percent, such as 60.
